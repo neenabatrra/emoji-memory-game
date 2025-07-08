@@ -98,6 +98,8 @@
         .card-face {
             background-color: #ffffff; /* Front of the card color (white) */
             transform: rotateY(180deg); /* Start rotated for flip */
+            position: relative; /* Ensure it creates a stacking context */
+            z-index: 1; /* Bring to front within its stacking context */
         }
 
         .card.matched {
@@ -187,7 +189,7 @@
         // Array of emojis to be used in the game
         const emojis = [
             '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '🚀', '🤖',
-            '�', '🐼', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
+            '🐶', '�', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
         ];
 
         let cards = []; // Stores the game cards (HTML elements)
@@ -352,4 +354,24 @@
         // Displays a temporary message in the message box
         function showMessage(msg, type) {
             messageBox.innerHTML = msg;
-            messageBox.classList.remove('hidden', 'bg-green-�
+            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800', 'bg-orange-100', 'text-orange-800'); // Clear previous styles
+            messageBox.classList.add(
+                type === 'green' ? 'bg-green-100' :
+                (type === 'red' ? 'bg-red-100' :
+                (type === 'orange' ? 'bg-orange-100' : 'bg-blue-100')),
+                type === 'green' ? 'text-green-800' :
+                (type === 'red' ? 'text-red-800' :
+                (type === 'orange' ? 'text-orange-800' : 'text-blue-800'))
+            );
+            messageBox.classList.remove('hidden');
+        }
+
+        // Event listeners
+        newGameBtn.addEventListener('click', initGame);
+
+        // Initialize the game when the window loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+�
