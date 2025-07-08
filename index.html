@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Match!</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a playful look */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            background: linear-gradient(to right bottom, #84fab0, #8fd3f4); /* Cheerful gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem; /* Increased padding */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 90vw; /* Responsive width */
+            width: 700px; /* Max width for larger screens */
+            box-sizing: border-box;
+        }
+
+        .game-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 columns */
+            grid-template-rows: repeat(4, 1fr); /* 4 rows for 16 cards */
+            gap: 0.75rem; /* Gap between cards */
+            perspective: 1000px; /* For 3D flip effect */
+            width: 100%; /* Make board take full width of container */
+            max-width: 500px; /* Limit board size for aesthetics */
+            aspect-ratio: 1 / 1; /* Keep it square */
+        }
+
+        .card {
+            width: 100%;
+            height: auto; /* Auto height to maintain aspect ratio */
+            aspect-ratio: 1 / 1; /* Ensure cards are square */
+            background-color: #f8e58f; /* Back of the card color (yellowish) */
+            border-radius: 0.75rem; /* Card rounded corners */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1.5rem, 6vw, 3rem); /* Responsive font size for emojis */
+            cursor: pointer;
+            transition: transform 0.5s ease, background-color 0.3s ease; /* Smooth flip and color transition */
+            transform-style: preserve-3d; /* Preserve 3D for children */
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            user-select: none; /* Prevent text selection */
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg); /* Flip effect */
+        }
+
+        .card-face, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; /* Hide back face when rotated */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0.75rem;
+            box-sizing: border-box;
+        }
+
+        .card-face {
+            background-color: #ffffff; /* Front of the card color (white) */
+            transform: rotateY(180deg); /* Start rotated for flip */
+        }
+
+        .card.matched {
+            opacity: 0.7; /* Slightly faded when matched */
+            pointer-events: none; /* Disable clicks on matched cards */
+            background-color: #d4edda; /* Light green for matched */
+        }
+
+        .message-box {
+            background-color: #e0f7fa; /* Light blue background */
+            color: #00796b; /* Dark teal text */
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            .game-board {
+                grid-template-columns: repeat(3, 1fr); /* 3 columns on small screens */
+                grid-template-rows: repeat(auto-fit, 1fr); /* Adapt rows */
+                gap: 0.5rem;
+                max-width: 300px; /* Smaller board for mobile */
+            }
+            .card {
+                font-size: clamp(1.2rem, 8vw, 2.5rem);
+            }
+            .game-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .timer-display, .new-game-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer" class="game-container">
+        <h1 class="text-4xl font-extrabold text-blue-700 mb-4 text-center">Emoji Match! 🧠</h1>
+        
+        <div class="game-header">
+            <div id="timerDisplay" class="timer-display text-2xl font-bold text-gray-700 bg-blue-100 py-2 px-4 rounded-lg shadow-inner">
+                Time: 05:00
+            </div>
+            <button id="newGameBtn" class="new-game-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                New Game
+            </button>
+        </div>
+
+        <div id="gameBoard" class="game-board">
+            <!-- Cards will be inserted here by JavaScript -->
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <button id="generateStoryBtn" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                ✨ Tell Me a Story! ✨
+            </button>
+            <button id="generateBrainTeaserBtn" class="hidden bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                💡 Emoji Brain Teaser! 💡
+            </button>
+        </div>
+
+        <div id="messageBox" class="message-box hidden">
+            <!-- Game messages and story/brain teaser will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // Array of emojis to be used in the game
+        const emojis = [
+            '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '🚀', '�',
+            '🐶', '🐼', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
+        ];
+
+        let cards = []; // Stores the game cards (HTML elements)
+        let flippedCards = []; // Stores the two currently flipped cards
+        let matchedPairs = 0; // Counts the number of matched pairs
+        let lockBoard = false; // Prevents further flips while checking for a match
+        let timerInterval; // Stores the interval ID for the timer
+        let timeRemaining; // Stores the remaining time in seconds
+        let matchedEmojis = new Set(); // To store unique matched emojis for the story and brain teaser
+
+        const gameBoard = document.getElementById('gameBoard');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const generateStoryBtn = document.getElementById('generateStoryBtn'); // Story button element
+        const generateBrainTeaserBtn = document.getElementById('generateBrainTeaserBtn'); // New Brain Teaser button element
+        const messageBox = document.getElementById('messageBox');
+
+        // Function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        // Initializes the game
+        function initGame() {
+            // Clear previous game state
+            gameBoard.innerHTML = '';
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            lockBoard = false;
+            matchedEmojis.clear(); // Clear matched emojis for new game
+            messageBox.classList.add('hidden'); // Hide any messages
+            generateStoryBtn.classList.add('hidden'); // Hide story button
+            generateBrainTeaserBtn.classList.add('hidden'); // Hide brain teaser button
+            clearInterval(timerInterval); // Clear any existing timer
+
+            // Duplicate emojis to create pairs
+            const gameEmojis = [...emojis.slice(0, 8), ...emojis.slice(0, 8)]; // Use 8 pairs for a 4x4 grid
+            shuffleArray(gameEmojis); // Shuffle the emojis
+
+            // Create card elements
+            gameEmojis.forEach((emoji, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.emoji = emoji; // Store the emoji on the card element
+
+                const cardInner = document.createElement('div');
+                cardInner.classList.add('card-inner');
+
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('card-back', 'bg-yellow-300'); // Back of the card styling
+
+                const cardFace = document.createElement('div');
+                cardFace.classList.add('card-face', 'bg-white'); // Front of the card styling
+                cardFace.textContent = emoji; // Display the emoji on the front
+
+                cardInner.appendChild(cardBack);
+                cardInner.appendChild(cardFace);
+                cardElement.appendChild(cardInner);
+
+                cardElement.addEventListener('click', flipCard); // Add click listener
+                gameBoard.appendChild(cardElement);
+                cards.push(cardElement);
+            });
+
+            startTimer(300); // Start a 5-minute timer (300 seconds)
+        }
+
+        // Handles flipping a card
+        function flipCard() {
+            // If board is locked or card is already flipped/matched, do nothing
+            if (lockBoard || this === flippedCards[0] || this.classList.contains('matched')) {
+                return;
+            }
+
+            this.classList.add('flipped'); // Add 'flipped' class to show the emoji
+            flippedCards.push(this); // Add card to flippedCards array
+
+            // If two cards are flipped, check for a match
+            if (flippedCards.length === 2) {
+                lockBoard = true; // Lock the board to prevent more flips
+                checkForMatch();
+            }
+        }
+
+        // Checks if the two flipped cards match
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.emoji === card2.dataset.emoji;
+
+            if (isMatch) {
+                matchedEmojis.add(card1.dataset.emoji); // Add matched emoji to set
+                disableCards(); // Keep cards flipped if they match
+            } else {
+                setTimeout(unflipCards, 1000); // Unflip after a delay if no match
+            }
+        }
+
+        // Disables matched cards
+        function disableCards() {
+            const [card1, card2] = flippedCards;
+            card1.removeEventListener('click', flipCard);
+            card2.removeEventListener('click', flipCard);
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+
+            matchedPairs++; // Increment matched pairs count
+            resetBoard(); // Reset for next turn
+
+            // Check if all pairs are matched (win condition)
+            if (matchedPairs === cards.length / 2) {
+                endGame(true); // Player wins!
+            }
+        }
+
+        // Unflips non-matching cards
+        function unflipCards() {
+            const [card1, card2] = flippedCards;
+            card1.classList.remove('flipped');
+            card2.classList.remove('flipped');
+            resetBoard(); // Reset for next turn
+        }
+
+        // Resets the flippedCards array and unlocks the board
+        function resetBoard() {
+            [flippedCards, lockBoard] = [[], false];
+        }
+
+        // Starts the game timer
+        function startTimer(duration) {
+            timeRemaining = duration;
+            updateTimerDisplay(); // Initial display
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endGame(false); // Player loses (time's up!)
+                }
+            }, 1000);
+        }
+
+        // Updates the timer display
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerDisplay.textContent = `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Ends the game, showing win/lose message
+        function endGame(isWin) {
+            clearInterval(timerInterval); // Stop the timer
+            lockBoard = true; // Prevent further interaction
+
+            if (isWin) {
+                showMessage("🎉 You found all the pairs! You're a Memory Master! 🎉", 'green');
+                generateStoryBtn.classList.remove('hidden'); // Show story button on win
+                generateBrainTeaserBtn.classList.remove('hidden'); // Show brain teaser button on win
+            } else {
+                showMessage("⏱️ Time's up! Don't worry, try again! ⏱️", 'red');
+            }
+            // Optionally, reveal all cards if time runs out
+            cards.forEach(card => card.classList.add('flipped'));
+        }
+
+        // Displays a temporary message in the message box
+        function showMessage(msg, type) {
+            messageBox.innerHTML = msg; // Use innerHTML for potential line breaks from story/teaser
+            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800', 'bg-orange-100', 'text-orange-800'); // Clear previous styles
+            messageBox.classList.add(
+                type === 'green' ? 'bg-green-100' :
+                (type === 'red' ? 'bg-red-100' :
+                (type === 'orange' ? 'bg-orange-100' : 'bg-blue-100')),
+                type === 'green' ? 'text-green-800' :
+                (type === 'red' ? 'text-red-800' :
+                (type === 'orange' ? 'text-orange-800' : 'text-blue-800'))
+            );
+            messageBox.classList.remove('hidden');
+        }
+
+        // Function to generate a story using the Gemini API
+        async function generateStory() {
+            console.log('Attempting to generate story...');
+            showMessage('⏳ Generating a magical story... please wait!', 'blue');
+            generateStoryBtn.disabled = true; // Disable button during generation
+            generateBrainTeaserBtn.disabled = true; // Disable other button too
+
+            const emojisList = Array.from(matchedEmojis).join(', '); // Convert set to comma-separated string
+            const prompt = `Generate a very short, fun, and imaginative story for an 8-year-old using these emojis: ${emojisList}. Make it positive and cheerful. Start directly with the story, without any introductory phrases. Keep it to 3-4 sentences.`;
+            console.log('Prompt for LLM (Story):', prompt);
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log('Gemini API Story Response:', result);
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    showMessage(`Here's your story! ✨<br><br>${text}`, 'blue'); // Display story
+                } else {
+                    showMessage('Oops! The story generation service returned an unexpected response. Try again!', 'red');
+                    console.error('Unexpected Story API response structure:', result);
+                }
+            } catch (error) {
+                console.error('Error generating story:', error);
+                showMessage(`An error occurred while generating the story: ${error.message}. Please try again later.`, 'red');
+            } finally {
+                generateStoryBtn.disabled = false; // Re-enable button
+                generateBrainTeaserBtn.disabled = false; // Re-enable other button
+            }
+        }
+
+        // Function to generate an emoji brain teaser using the Gemini API
+        async function generateBrainTeaser() {
+            console.log('Attempting to generate brain teaser...');
+            showMessage('🤔 Thinking up a clever teaser... please wait!', 'orange');
+            generateBrainTeaserBtn.disabled = true; // Disable button during generation
+            generateStoryBtn.disabled = true; // Disable other button too
+
+            // Pick a random emoji from the matched ones
+            const matchedEmojiArray = Array.from(matchedEmojis);
+            if (matchedEmojiArray.length === 0) {
+                showMessage('No emojis matched yet to create a teaser! Play the game first.', 'red');
+                generateBrainTeaserBtn.disabled = false;
+                generateStoryBtn.disabled = false;
+                return;
+            }
+            const randomEmoji = matchedEmojiArray[Math.floor(Math.random() * matchedEmojiArray.length)];
+
+            const prompt = `Create a very short, simple, and fun brain teaser for an 8-year-old. The answer to the brain teaser must be the emoji: ${randomEmoji}. Do not reveal the answer. Start directly with the teaser, without any introductory phrases. Keep it to 2-3 sentences.`;
+            console.log('Prompt for LLM (Brain Teaser):', prompt);
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const result = await response.json();
+                console.log('Gemini API Brain Teaser Response:', result);
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    showMessage(`Here's your Emoji Brain Teaser! 💡<br><br>${text}<br><br>Can you guess the emoji?`, 'orange'); // Display teaser
+                } else {
+                    showMessage('Oops! The brain teaser generation service returned an unexpected response. Try again!', 'red');
+                    console.error('Unexpected Brain Teaser API response structure:', result);
+                }
+            } catch (error) {
+                console.error('Error generating brain teaser:', error);
+                showMessage(`An error occurred while generating the brain teaser: ${error.message}. Please try again later.`, 'red');
+            } finally {
+                generateBrainTeaserBtn.disabled = false; // Re-enable button
+                generateStoryBtn.disabled = false; // Re-enable other button
+            }
+        }
+
+        // Event listeners
+        newGameBtn.addEventListener('click', initGame);
+        generateStoryBtn.addEventListener('click', generateStory);
+        generateBrainTeaserBtn.addEventListener('click', generateBrainTeaser); // New event listener
+
+        // Initialize the game when the window loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
+�
