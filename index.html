@@ -12,11 +12,13 @@
             font-family: 'Inter', sans-serif; /* Using Inter font */
             background: linear-gradient(to right bottom, #84fab0, #8fd3f4); /* Cheerful gradient background */
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; /* Center horizontally */
+            align-items: flex-start; /* Start content from the top vertically */
             min-height: 100vh; /* Full viewport height */
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars */
+            /* Removed overflow: hidden to allow scrolling */
+            padding-top: 1.5rem; /* Add some initial top padding */
+            box-sizing: border-box; /* Include padding in element's total width and height */
         }
 
         .game-container {
@@ -31,6 +33,7 @@
             width: 95%; /* Make it fluid by default */
             max-width: 700px; /* Cap overall max width for desktop */
             box-sizing: border-box;
+            margin-bottom: 2rem; /* Add space at the bottom for scrolling */
         }
 
         .game-header {
@@ -49,6 +52,7 @@
             perspective: 1000px; /* For 3D flip effect */
             width: 100%; /* Always take full width of container */
             aspect-ratio: 1 / 1; /* Keep it square */
+            /* Removed max-width: 500px to prevent cutoff on large screens */
         }
 
         .card {
@@ -120,6 +124,9 @@
 
         /* Responsive adjustments for smaller screens */
         @media (max-width: 640px) {
+            body {
+                padding-top: 1rem; /* Slightly less top padding on small screens */
+            }
             .game-container {
                 padding: 1rem; /* Slightly reduced padding for smaller screens */
                 gap: 1rem;
@@ -182,7 +189,7 @@
     <script>
         // Array of emojis to be used in the game
         const emojis = [
-            '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '🚀', '🤖',
+            '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '�', '🤖',
             '🐶', '🐼', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
         ];
 
@@ -368,3 +375,4 @@
     </script>
 </body>
 </html>
+�
