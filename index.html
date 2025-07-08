@@ -32,7 +32,7 @@
             width: 95%; /* Make it fluid by default */
             max-width: 700px; /* Cap overall max width for desktop */
             box-sizing: border-box;
-            margin-bottom: 2rem; /* Add space at the bottom for scrolling */
+            margin: 0 auto 2rem auto; /* Top, Right, Bottom, Left. Auto for left/right centering. */
         }
 
         .game-header {
@@ -187,7 +187,7 @@
         // Array of emojis to be used in the game
         const emojis = [
             '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '🚀', '🤖',
-            '🐶', '�', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
+            '�', '🐼', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
         ];
 
         let cards = []; // Stores the game cards (HTML elements)
@@ -352,24 +352,4 @@
         // Displays a temporary message in the message box
         function showMessage(msg, type) {
             messageBox.innerHTML = msg;
-            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800', 'bg-orange-100', 'text-orange-800'); // Clear previous styles
-            messageBox.classList.add(
-                type === 'green' ? 'bg-green-100' :
-                (type === 'red' ? 'bg-red-100' :
-                (type === 'orange' ? 'bg-orange-100' : 'bg-blue-100')),
-                type === 'green' ? 'text-green-800' :
-                (type === 'red' ? 'text-red-800' :
-                (type === 'orange' ? 'text-orange-800' : 'text-blue-800'))
-            );
-            messageBox.classList.remove('hidden');
-        }
-
-        // Event listeners
-        newGameBtn.addEventListener('click', initGame);
-
-        // Initialize the game when the window loads
-        window.onload = initGame;
-    </script>
-</body>
-</html>
-�
+            messageBox.classList.remove('hidden', 'bg-green-�
