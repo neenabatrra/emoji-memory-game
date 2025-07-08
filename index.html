@@ -16,7 +16,6 @@
             align-items: flex-start; /* Start content from the top vertically */
             min-height: 100vh; /* Full viewport height */
             margin: 0;
-            /* Removed overflow: hidden to allow scrolling */
             padding-top: 1.5rem; /* Add some initial top padding */
             box-sizing: border-box; /* Include padding in element's total width and height */
         }
@@ -46,13 +45,12 @@
 
         .game-board {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* Default 4 columns for larger screens */
+            grid-template-columns: repeat(4, 1fr); /* Always 4 columns */
             grid-template-rows: repeat(4, 1fr); /* 4 rows for 16 cards */
             gap: 0.75rem; /* Gap between cards */
             perspective: 1000px; /* For 3D flip effect */
             width: 100%; /* Always take full width of container */
             aspect-ratio: 1 / 1; /* Keep it square */
-            /* Removed max-width: 500px to prevent cutoff on large screens */
         }
 
         .card {
@@ -132,12 +130,11 @@
                 gap: 1rem;
             }
             .game-board {
-                grid-template-columns: repeat(3, 1fr); /* 3 columns on small screens */
-                grid-template-rows: repeat(auto-fit, 1fr); /* Adapt rows */
-                gap: 0.5rem;
+                grid-template-columns: repeat(4, 1fr); /* Force 4 columns on small screens */
+                gap: 0.3rem; /* Reduced gap to fit cards better */
             }
             .card {
-                font-size: clamp(1.2rem, 10vw, 2.5rem); /* Adjust font size more for small screens */
+                font-size: clamp(1rem, 7vw, 2rem); /* Smaller font for emojis on small screens */
             }
             .game-header {
                 flex-direction: column;
@@ -155,11 +152,11 @@
         /* Further adjustments for very small screens (e.g., old phones) */
         @media (max-width: 400px) {
             .game-board {
-                grid-template-columns: repeat(3, 1fr); /* Stick to 3 columns on very small */
-                gap: 0.4rem;
+                grid-template-columns: repeat(4, 1fr); /* Still 4 columns on very small */
+                gap: 0.2rem; /* Even smaller gap */
             }
             .card {
-                font-size: clamp(1rem, 12vw, 2.2rem); /* Even smaller font */
+                font-size: clamp(0.8rem, 8vw, 1.8rem); /* Even smaller font */
             }
         }
     </style>
@@ -189,8 +186,8 @@
     <script>
         // Array of emojis to be used in the game
         const emojis = [
-            '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '�', '🤖',
-            '🐶', '🐼', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
+            '🎉', '🎈', '🌟', '🌈', '🍦', '🍩', '🚀', '🤖',
+            '🐶', '�', '🍎', '🍊', '🍓', '🥕', '🌻', '🌸'
         ];
 
         let cards = []; // Stores the game cards (HTML elements)
